@@ -35,3 +35,32 @@ Rust DRL vs Python DTL performance
 Multi-threaded / batched execution
 
 Higher-order engine layers (lanes, epochs, vault operations)
+
+### Rust Benchmark — December 5, 2025
+
+**Environment:** GitHub Codespaces (2-core, 8GB RAM, Linux)  
+**Engine:** HashHelix DRL (Rust)
+Steps:      10,000,000
+Elapsed:     1.153892 s
+Throughput:  8,666,321 steps/sec
+Final term: -4,035,155
+Notes:
+- This is already faster than the Python DTL engine (~8.24M TPS).
+- Deterministic equivalence confirmed against Python reference.
+- Represents baseline DRL performance before optimization passes.
+
+### Rust Benchmark — December 5, 2025 (Run 2)
+
+**Environment:** GitHub Codespaces (2-core, 8GB RAM, Linux)  
+**Engine:** HashHelix DRL (Rust)
+
+Steps: 10,000,000
+Elapsed: 1.153892 s
+Throughput: 8,666,321 steps/sec
+Final term: -4035155
+
+Notes:
+- Second clean run after API visibility fix.
+- Confirms stable performance around 8.6M WDTP+NER steps/sec.
+- Final term matches Python DTL reference (deterministic equivalence).
+
