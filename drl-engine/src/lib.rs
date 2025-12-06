@@ -1,5 +1,16 @@
 use std::f64::consts::PI;
 
+pub mod engine;
+pub mod lanes;
+pub mod epochs;
+pub mod relics;
+pub mod vault;
+pub mod compression;
+pub mod api;
+
+// Re-export the core engine type at the crate root for external users/tests.
+pub use crate::engine::DrlEngine;
+
 /// HashHelix Deterministic Recurrence Ledger (DRL) Engine
 /// Institutional Rust counterpart to the public Python DTL engine.
 ///
@@ -69,3 +80,14 @@ mod tests {
     }
 }
 
+/// Compute the next WDTP+NER term given the previous term and step index.
+/// This is the *canonical* DRL engine primitive.
+pub fn wdtp_step(prev: i64, n: usize) -> i64 {
+    use std::f64::consts::PI;
+
+    // Numerical Evaluation Rule: reduce phase mod 2π deterministically
+    let phase = ((prev as f64) + (PI / n as f64)) % (2.0 * PI);
+
+    let value = (n as f64 * phase.sin()).floor() as i64 + 1;
+    value
+}
