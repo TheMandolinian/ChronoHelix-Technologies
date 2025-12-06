@@ -64,3 +64,17 @@ Notes:
 - Confirms stable performance around 8.6M WDTP+NER steps/sec.
 - Final term matches Python DTL reference (deterministic equivalence).
 
+## Benchmark Run — DRL TPS Baseline (Rust, Codespaces) Run 3
+
+- Date: 2025-12-05
+- Location: GitHub Codespaces (ChronoHelix-Technologies/drl-engine)
+- Mode: `cargo run --release --bin tps_benchmark`
+- Steps: 10,000,000
+- Elapsed: 1.144310 seconds
+- Throughput: 8,738,894.05 steps/second
+- Final term a_n: 7,526,323
+
+Notes:
+- First confirmed Rust DRL TPS benchmark.
+- Engine: `DrlEngine` using `step_n` wired to `wdtp_step` (WDTP+NER).
+- This run establishes the initial performance baseline for future optimizations and hardware comparisons.
