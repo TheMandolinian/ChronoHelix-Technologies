@@ -1,62 +1,70 @@
 use std::f64::consts::PI;
 
-/// Compute the next WDTP term under NER.
-/// 
-/// Seed: a₁ = 1 (handled by the sequence helper)
-/// Recurrence for n ≥ 2:
-/// aₙ = floor( n * sin( (aₙ₋₁ + π/n) mod 2π ) ) + 1
-pub fn wdtp_next(prev: i64, n: u64) -> i64 {
-    assert!(n >= 2, "n must be ≥ 2 for the recurrence");
+/// HashHelix Deterministic Recurrence Ledger (DRL) Engine
+/// Institutional Rust counterpart to the public Python DTL engine.
+///
+/// This engine computes the WDTP+NER recurrence deterministically.
+/// Higher layers (lanes, epochs, vaults) will attach to this struct.
+pub struct Engine;
 
-    let two_pi = 2.0 * PI;
+impl Engine {
+    /// Creates a new engine instance (placeholder for config later)
+    pub fn new() -> Self {
+        Engine
+    }
 
-    // Numerical Evaluation Rule (NER):
-    // phase must be reduced modulo 2π with a deterministic op.
-    let phase = ((prev as f64) + PI / (n as f64)).rem_euclid(two_pi);
-
-    let value = (n as f64 * phase.sin()).floor() as i64 + 1;
-    value
+    /// Computes n terms of the WDTP+NER recurrence.
+    ///
+    /// Returns a Vec<i64> of length n_terms.
+    /// The first term is always a₁ = 1.
+    pub fn sequence(&self, n_terms: usize) -> Vec<i64> {
+        wdtp_sequence(n_terms)
+    }
 }
 
-/// Generate the first `len` WDTP terms (including a₁ = 1).
-pub fn wdtp_sequence(len: usize) -> Vec<i64> {
-    assert!(len >= 1, "sequence length must be at least 1");
+/// Core WDTP+NER deterministic recurrence.
+/// Private, engine-facing function.
+pub fn wdtp_sequence(n_terms: usize) -> Vec<i64> {
+    let tau: f64 = 2.0 * PI;
+    let mut seq: Vec<i64> = Vec::with_capacity(n_terms);
 
-    let mut seq = Vec::with_capacity(len);
-    let mut a: i64 = 1;
-    seq.push(a); // a₁
+    let mut a: f64 = 1.0;
+    seq.push(1);
 
-    for n in 2..=len as u64 {
-        a = wdtp_next(a, n);
-        seq.push(a);
+    for n in 2..=n_terms {
+        let phase = (a + PI / (n as f64)) % tau;
+        a = ( (n as f64) * phase.sin() ).floor() + 1.0;
+        seq.push(a as i64);
     }
 
     seq
 }
 
+// ----------------------------- //
+// Tests                        //
+// ----------------------------- //
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-        #[test]
+    #[test]
     fn first_32_terms_match_python_reference() {
-        // Canonical WDTP+NER sequence for n = 1..32 from the Python DTL engine
         let expected: [i64; 32] = [
-            1,   2,   1,   4,  -4,   2,   5,  -6,
-            6,   1,  11, -11,  13,   9,   4, -13,
-           -4,  12,  -7, -10,   9,   7,  18, -15,
-          -18,  22,  -3,  -7, -16,   6,  -5,  32,
+            1, 2, 1, 4, -4, 2, 5, -6, 6, 1, 11, -11, 13, 9, 4, -13,
+            -4, 12, -7, -10, 9, 7, 18, -15, -18, 22, -3, -7, -16, 6, -5, 32,
         ];
 
-        let seq = wdtp_sequence(32);
+        let eng = Engine::new();
+        let seq = eng.sequence(32);
         assert_eq!(seq, expected);
     }
 
-
     #[test]
     fn deterministic_replay_is_identical() {
-        let s1 = wdtp_sequence(100);
-        let s2 = wdtp_sequence(100);
+        let eng = Engine::new();
+        let s1 = eng.sequence(100);
+        let s2 = eng.sequence(100);
         assert_eq!(s1, s2);
     }
 }
